@@ -105,7 +105,7 @@ Will add test data (10 tuna catches)to our network
  */
 func (s *SmartContract) buildLedger(APIstub shim.ChaincodeStubInterface) sc.Response {
 	Requests := []request{
-		request{Timestamp: "999999999", SenderName: "Someone", SenderAddr: "somewhere 99 L150HA", ReceiveName: "that guy", ReceiveAddr: "po 20 L777OL", DelivererName: "de wea", Price: "10", Status: "under way", Code: "98sad56w4d56"},
+		request{Timestamp: "2145376543", SenderName: "923F", SenderAddr: "L150HA", ReceiveName: "Alex Forkford", ReceiveAddr: "Bangkok", DelivererName: "de wea", Price: "10", Status: "under way", Code: "98sad56w4d56"},
 	}
 
 	i := 0
