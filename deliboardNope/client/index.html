@@ -1,0 +1,165 @@
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Hyperledger Fabric Application, Senior Project: DeliBoard</title>
+    <link rel="icon" href="favicon.png" type="image/gif">
+
+    <!-- require jquery and bootstrap scripts -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.3/angular.min.js"></script>
+    
+    <!-- adding style here -->
+    <style type="text/css">
+      header{
+        background-color: lightgray;
+        font-size:20px;
+        padding:15px;
+      }
+      header, .form-group{
+        margin-bottom: 3%;
+      }
+      .form-group{
+        width:50%;
+      }
+      #body{
+        margin-left:3%;
+        margin-right:3%;
+      }
+      .form-control{
+        margin: 8px;
+      }
+      #right_header{
+        width:20%;
+        font-size:15px;
+        margin-right:0px;
+      }
+      #left_header{
+        margin-left:0;
+        width:40%;
+        display:inline-block;
+      } 
+      #id {
+        width:49%;
+        display: inline-block;
+      }
+      table {
+          font-family: arial, sans-serif;
+          border-collapse: collapse;
+          width: 100%;
+      }
+      td, th {
+          border: 1px solid #dddddd;
+          text-align: left;
+          padding: 8px;
+      }
+      tr:nth-child(even) {
+          background-color: #dddddd;
+      }
+    </style>
+  </head>
+  <body ng-app="application" ng-controller="appController">
+    <header>
+      <div id="left_header">Hyperledger Fabric Application: DeliBoard</div>
+      <i id="right_header">Version 1.0.0</i>
+    </header>
+
+    <div id="body">
+      <div class="form-group">
+        <label>Query All Request</label>
+        <p><input id="queryAllRequest" type="submit" value="Query" class="btn btn-primary" ng-click="queryAllRequest()"></p>
+      </div>
+ 
+      <table id="all_request" class="table" align="center">
+
+        <tr>
+          <th>ID</th>
+          <th>Timestamp</th>
+          <th>Sender name</th>
+          <th>Sender address</th>
+          <th>Receiver name</th>
+          <th>Receiver address</th>
+          <th>Deliverer name</th>
+          <th>Price</th>
+          <th>Status</th>
+          <th>Code</th>
+        </tr>
+
+        <tr ng-repeat="request in all_request">
+          <td>{{request.Key}}</td>
+          <td>{{request.timestamp}}</td>
+          <td>{{request.sender_name}}</td>
+          <td>{{request.sender_address}}</td>
+          <td>{{request.receive_name}}</td>
+          <td>{{request.receive_address}}</td>
+          <td>{{request.deliverer_name}}</td>
+          <td>{{request.price}}</td>
+          <td>{{request.status}}</td>
+          <td>{{request.code}}</td>
+        </tr>
+      </table>
+
+      <div class="form-group">
+        <label>Query a Specific Request</label><br>
+        <h5 style="color:red;margin-bottom:2%" id="error_query">Error: Please enter a valid Request Id</h5>
+        
+        Enter a catch number: <input id="createName" class="form-control" type="text" placeholder="Ex: 3" ng-model="request_id">
+        <input id="querySubmit" type="submit" value="Query" class="btn btn-primary" ng-click="queryRequest()">
+      </div>
+
+      <table id="query_request" class="table" align="center">
+
+        <tr>
+          <th>Timestamp</th>
+          <th>Sender name</th>
+          <th>Sender address</th>
+          <th>Receiver name</th>
+          <th>Receiver address</th>
+          <th>Deliverer name</th>
+          <th>Price</th>
+          <th>Status</th>
+          <th>Code</th>
+        </tr>
+
+        <tr>
+          <td>{{request.timestamp}}</td>
+          <td>{{request.sender_name}}</td>
+          <td>{{request.sender_address}}</td>
+          <td>{{request.receive_name}}</td>
+          <td>{{request.receive_address}}</td>
+          <td>{{request.deliverer_name}}</td>
+          <td>{{request.price}}</td>
+          <td>{{request.status}}</td>
+          <td>{{request.code}}</td>
+        </tr>
+      </table>
+
+      <div class="form-group">
+        <label>Create new Request</label>
+        <h5 style="color:green;margin-bottom:2%" id="success_create">Success! Tx ID: {{create_request}}</h5>
+        <br>
+        Enter request id: <input class="form-control" type="text" placeholder="Ex: 11" ng-model="request.id">
+        Enter Sender name: <input class="form-control" type="text" placeholder="Ex: Bob" ng-model="request.sender_name">
+        Enter Sender address: <input class="form-control" type="text" placeholder="Ex: L150HA" ng-model="request.sender_address"> 
+        Enter Receiver name: <input class="form-control" type="text" placeholder="Ex: Bobby" ng-model="request.receive_name">
+        Enter Receiver address: <input class="form-control" type="text" placeholder="Ex: L150HA" ng-model="request.receive_address">
+        <input id="createSubmit" type="submit" value="Create" class="btn btn-primary" ng-click="buildRequest()"> 
+      </div>
+
+      <!-- <div class="form-group">
+        <label>Change Tuna Holder</label><br>
+        <h5 style="color:green;margin-bottom:2%" id="success_holder">Success! Tx ID: {{change_holder}}</h5>
+        <h5 style="color:red;margin-bottom:2%" id="error_holder">Error: Please enter a valid Tuna Id</h5>
+        Enter a catch id between 1 and 10: <input class="form-control" name="assetSelect" placeholder="Ex: 1" ng-model="holder.id">
+        Enter name of new holder: <input class="form-control" name="assetSelect" placeholder="Ex: Barry" ng-model="holder.name">
+        <input id="transferSubmit" type="submit" value="Change" class="btn btn-primary" ng-click="changeHolder()">
+      </div> -->
+
+    </div>
+  </body>
+    <!-- requiring the angular page -->
+    <script type="text/javascript" src="app.js"> </script>
+</html>
