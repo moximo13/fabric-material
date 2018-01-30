@@ -64,13 +64,13 @@
   <body ng-app="application" ng-controller="appController">
     <header>
       <div id="left_header">Hyperledger Fabric Application: DeliBoard</div>
-      <i id="right_header">Version 1.0.0</i>
+      <i id="right_header">Version 1.2.1</i>
     </header>
 
     <div id="body">
       <div class="form-group">
         <label>Query All Request</label>
-        <p><input id="queryAllRequest" type="submit" value="Query" class="btn btn-primary" ng-click="queryAllRequest()"></p>
+        <p><input id="queryAllRequest" type="submit" value="QueryAll" class="btn btn-primary" ng-click="queryAllRequest()"></p>
       </div>
  
       <table id="all_request" class="table" align="center">
@@ -78,7 +78,7 @@
         <tr>
           <th>ID</th>
           <th>Timestamp</th>
-          <th>Sender name</th>
+          <th>Sender name555</th>
           <th>Sender address</th>
           <th>Receiver name</th>
           <th>Receiver address</th>
@@ -89,16 +89,16 @@
         </tr>
 
         <tr ng-repeat="request in all_request">
-          <td>{{Requests.Key}}</td>
-          <td>{{Requests.timestamp}}</td>
-          <td>{{Requests.sender_name}}</td>
-          <td>{{Requests.sender_address}}</td>
-          <td>{{Requests.receive_name}}</td>
-          <td>{{Requests.receive_address}}</td>
-          <td>{{Requests.deliverer_name}}</td>
-          <td>{{Requests.price}}</td>
-          <td>{{Requests.status}}</td>
-          <td>{{Requests.code}}</td>
+          <td>{{request.Key}}</td>
+          <td>{{request.timestamp}}</td>
+          <td>{{request.sender_name}}</td>
+          <td>{{request.sender_address}}</td>
+          <td>{{request.receive_name}}</td>
+          <td>{{request.receive_address}}</td>
+          <td>{{request.deliverer_name}}</td>
+          <td>{{request.price}}</td>
+          <td>{{request.status}}</td>
+          <td>{{request.code}}</td>
         </tr>
       </table>
 
@@ -113,27 +113,23 @@
       <table id="query_request" class="table" align="center">
 
         <tr>
-          <th>Timestamp</th>
+          <th>Spec Timestamp</th>
           <th>Sender name</th>
           <th>Sender address</th>
           <th>Receiver name</th>
           <th>Receiver address</th>
-          <th>Deliverer name</th>
           <th>Price</th>
           <th>Status</th>
-          <th>Code</th>
         </tr>
 
         <tr>
-          <td>{{request.timestamp}}</td>
-          <td>{{request.sender_name}}</td>
-          <td>{{request.sender_address}}</td>
-          <td>{{request.receive_name}}</td>
-          <td>{{request.receive_address}}</td>
-          <td>{{request.deliverer_name}}</td>
-          <td>{{request.price}}</td>
-          <td>{{request.status}}</td>
-          <td>{{request.code}}</td>
+          <td>{{query_request.timestamp}}</td>
+          <td>{{query_request.sender_name}}</td>
+          <td>{{query_request.sender_address}}</td>
+          <td>{{query_request.receive_name}}</td>
+          <td>{{query_request.receive_address}}</td>
+          <td>{{query_request.price}}</td>
+          <td>{{query_request.status}}</td>
         </tr>
       </table>
 
@@ -142,21 +138,36 @@
         <h5 style="color:green;margin-bottom:2%" id="success_create">Success! Tx ID: {{create_request}}</h5>
         <br>
         Enter request id: <input class="form-control" type="text" placeholder="Ex: 11" ng-model="request.id">
+        Enter timestamp: <input class="form-control" type="text" placeholder="Ex: 4982342301" ng-model="request.timestamp">
         Enter Sender name: <input class="form-control" type="text" placeholder="Ex: Bob" ng-model="request.sender_name">
         Enter Sender address: <input class="form-control" type="text" placeholder="Ex: L150HA" ng-model="request.sender_address"> 
         Enter Receiver name: <input class="form-control" type="text" placeholder="Ex: Bobby" ng-model="request.receive_name">
         Enter Receiver address: <input class="form-control" type="text" placeholder="Ex: L150HA" ng-model="request.receive_address">
+        <!-- Enter delivery name: <input class="form-control" type="text" placeholder="Ex: L150HA" ng-model="request.deliverer_name">
+        Enter Receiver address: <input class="form-control" type="text" placeholder="Ex: L150HA" ng-model="request.price">
+        Enter Receiver address: <input class="form-control" type="text" placeholder="Ex: L150HA" ng-model="request.status">
+        Enter code: <input class="form-control" type="text" placeholder="Ex: L150HA" ng-model="request.code"> -->
+
         <input id="createSubmit" type="submit" value="Create" class="btn btn-primary" ng-click="buildRequest()"> 
       </div>
 
-      <!-- <div class="form-group">
-        <label>Change Tuna Holder</label><br>
-        <h5 style="color:green;margin-bottom:2%" id="success_holder">Success! Tx ID: {{change_holder}}</h5>
-        <h5 style="color:red;margin-bottom:2%" id="error_holder">Error: Please enter a valid Tuna Id</h5>
-        Enter a catch id between 1 and 10: <input class="form-control" name="assetSelect" placeholder="Ex: 1" ng-model="holder.id">
-        Enter name of new holder: <input class="form-control" name="assetSelect" placeholder="Ex: Barry" ng-model="holder.name">
-        <input id="transferSubmit" type="submit" value="Change" class="btn btn-primary" ng-click="changeHolder()">
-      </div> -->
+      <div class="form-group">
+        <label>Update deliverer</label><br>
+        <h5 style="color:green;margin-bottom:2%" id="success_update_deliverer">Success! Tx ID: {{update_deliverer}}</h5>
+        <h5 style="color:red;margin-bottom:2%" id="error_update_deliverer">Error: Please enter a valid Request Id</h5>
+        Enter a Request id: <input class="form-control" name="assetSelect" placeholder="Ex: 1" ng-model="update.id">
+        Enter name of deliverer: <input class="form-control" name="assetSelect" placeholder="Ex: Barry" ng-model="update.name">
+        <input id="transferSubmit" type="submit" value="Change" class="btn btn-primary" ng-click="updateDeliverer()">
+      </div>
+
+      <div class="form-group">
+        <label>Update finish</label><br>
+        <h5 style="color:green;margin-bottom:2%" id="success_update_finish">Success! Tx ID: {{update_finish}}</h5>
+        <h5 style="color:red;margin-bottom:2%" id="error_update_finish">Error: Please enter a valid Request Id</h5>
+        Enter a Request id: <input class="form-control" name="assetSelect" placeholder="Ex: 1" ng-model="update.id">
+        Enter verification code: <input class="form-control" name="assetSelect" placeholder="Ex: XXXXXXxxxXXX" ng-model="update.code">
+        <input id="transferSubmit" type="submit" value="Change" class="btn btn-primary" ng-click="updateFinish()">
+      </div>
 
     </div>
   </body>

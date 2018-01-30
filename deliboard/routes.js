@@ -1,19 +1,22 @@
 //SPDX-License-Identifier: Apache-2.0
 
-var tuna = require('./controller.js');
+var request = require('./controller.js');
 
 module.exports = function(app){
 
   app.get('/get_request/:id', function(req, res){
-    tuna.get_request(req, res);
+    request.get_request(req, res);
   });
-  app.get('/add_request/:tuna', function(req, res){
-    tuna.add_request(req, res);
+  app.get('/add_request/:request', function(req, res){
+    request.add_request(req, res);
   });
   app.get('/get_all_request', function(req, res){
-    tuna.get_all_request(req, res);
+    request.get_all_request(req, res);
   });
-  //app.get('/change_holder/:holder', function(req, res){
-  //  tuna.change_holder(req, res);
-  //});
+  app.get('/update_deliverer/:deliverer', function(req, res){
+    request.update_deliverer(req, res);
+  });
+  app.get('/update_finish/:finish', function(req, res){
+    request.update_finish(req, res);
+  });
 }

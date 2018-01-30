@@ -7,10 +7,12 @@ var app = angular.module('application', []);
 // Angular Controller
 app.controller('appController', function($scope, appFactory){
 
-	$("#success_holder").hide();
+	$("#success_update_deliverer").hide();
 	$("#success_create").hide();
-	$("#error_holder").hide();
+	$("#error_update_deliverer").hide();
 	$("#error_query").hide();
+	$("#success_update_finish").hide();
+	$("#error_update_finish").hide();
 	
 	$scope.queryAllRequest = function(){
 
@@ -24,7 +26,7 @@ app.controller('appController', function($scope, appFactory){
 			array.sort(function(a, b) {
 			    return parseFloat(a.Key) - parseFloat(b.Key);
 			});
-			$scope.all_tuna = array;
+			$scope.all_request = array;
 		});
 	}
 
@@ -46,25 +48,39 @@ app.controller('appController', function($scope, appFactory){
 
 	$scope.buildRequest = function(){
 
-		appFactory.buildRequest($scope.tuna, function(data){
-			$scope.create_tuna = data;
+		appFactory.buildRequest($scope.request, function(data){
+			$scope.create_request = data;
 			$("#success_create").show();
 		});
 	}
 
-	// $scope.changeHolder = function(){
+	$scope.updateDeliverer = function(){
 
-	// 	appFactory.changeHolder($scope.holder, function(data){
-	// 		$scope.change_holder = data;
-	// 		if ($scope.change_holder == "Error: no tuna catch found"){
-	// 			$("#error_holder").show();
-	// 			$("#success_holder").hide();
-	// 		} else{
-	// 			$("#success_holder").show();
-	// 			$("#error_holder").hide();
-	// 		}
-	// 	});
-	// }
+		appFactory.updateDeliverer($scope.update, function(data){
+			$scope.update_deliverer = data;
+			if ($scope.update_deliverer == "Error: no request found"){
+				$("#error_update").show();
+				$("#success_update").hide();
+			} else{
+				$("#success_update").show();
+				$("#error_update").hide();
+			}
+		});
+	}
+
+	$scope.updateFinish = function(){
+
+		appFactory.updateFinish($scope.update, function(data){
+			$scope.update_finish = data;
+			if ($scope.update_finish == "Error: no request found"){
+				$("#error_update").show();
+				$("#success_update").hide();
+			} else{
+				$("#success_update").show();
+				$("#error_update").hide();
+			}
+		});
+	}
 
 });
 
@@ -90,21 +106,30 @@ app.factory('appFactory', function($http){
 
 		// data.location = data.longitude + ", "+ data.latitude;
 
-		var request = data.timestamp + "-" + data.sender_name + "-" + data.sender_address + "-" + data.receive_name + "-" + data.receive_address + "-" + data.deliverer_name + "-" + data.price + "-" + data.status + "-" + data.code;
+		var request = data.id + "-" + data.timestamp + "-" + data.sender_name + "-" + data.sender_address + "-" + data.receive_name + "-" + data.receive_address + "-" + data.deliverer_name + "-" + data.price + "-" + data.status + "-" + data.code;
 
     	$http.get('/add_request/'+request).success(function(output){
 			callback(output)
 		});
 	}
 
-	// factory.changeHolder = function(data, callback){
+	factory.updateDeliverer = function(data, callback){
 
-	// 	var holder = data.id + "-" + data.name;
+		var update = data.id + "-" + data.name;
 
-    // 	$http.get('/change_holder/'+holder).success(function(output){
-	// 		callback(output)
-	// 	});
-	// }
+    	$http.get('/update_deliverer/'+update).success(function(output){
+			callback(output)
+		});
+	}
+
+	factory.updateFinish = function(data, callback){
+
+		var update = data.id + "-" + data.code;
+
+    	$http.get('/update_finish/'+update).success(function(output){
+			callback(output)
+		});
+	}
 
 	return factory;
 });

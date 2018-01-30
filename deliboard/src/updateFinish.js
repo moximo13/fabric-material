@@ -1,35 +1,15 @@
 'use strict';
-/*
-* SPDX-License-Identifier: Apache-2.0
-
- * Chaincode Invoke
- 
-This code is based on code written by the Hyperledger Fabric community.
-Original code can be found here: https://github.com/hyperledger/fabric-samples/blob/release/fabcar/invoke.js
-*/
 
 var Fabric_Client = require('fabric-client');
 var path = require('path');
 var util = require('util');
 var os = require('os');
 
-var fabric_client = new Fabric_Client();
+console.log("Finising Request: ");
 
-console.log("submit new delivery request really: ");
-
-var array = req.params.request.split("-");
-console.log(array);
-
+var array = req.params.update.split("-");
 var key = array[0]
-var timestamp = array[1]
-var sender_name = array[2]
-var sender_address = array[3]
-var receive_name = array[4]
-var receive_address = array[5]
-var deliverer_name = 'n/a'
-var price = 'n/a'
-var status = 'Waiting'
-var code = 'n/a'
+var code = array[1];
 
 var fabric_client = new Fabric_Client();
 
@@ -45,19 +25,13 @@ var store_path = path.join(os.homedir(), '.hfc-key-store');
 console.log('Store path:'+store_path);
 var tx_id = null;
 
-// create the key value store as defined in the fabric-client/config/default.json 'key-value-store' setting
 Fabric_Client.newDefaultKeyValueStore({ path: store_path
 }).then((state_store) => {
-    // assign the store to the fabric client
     fabric_client.setStateStore(state_store);
     var crypto_suite = Fabric_Client.newCryptoSuite();
-    // use the same location for the state store (where the users' certificate are kept)
-    // and the crypto store (where the users' keys are kept)
     var crypto_store = Fabric_Client.newCryptoKeyStore({path: store_path});
     crypto_suite.setCryptoKeyStore(crypto_store);
     fabric_client.setCryptoSuite(crypto_suite);
-
-    // get the enrolled user from persistence, this user will sign all requests
     return fabric_client.getUserContext('user1', true);
 }).then((user_from_store) => {
     if (user_from_store && user_from_store.isEnrolled()) {
@@ -66,18 +40,13 @@ Fabric_Client.newDefaultKeyValueStore({ path: store_path
     } else {
         throw new Error('Failed to get user1.... run registerUser.js');
     }
-
-    // get a transaction id object based on the current user assigned to fabric client
     tx_id = fabric_client.newTransactionID();
     console.log("Assigning transaction_id: ", tx_id._transaction_id);
 
-    // recordTuna - requires 5 args, ID, vessel, location, timestamp,holder - ex: args: ['10', 'Hound', '-12.021, 28.012', '1504054225', 'Hansel'], 
-    // send proposal to endorser
-    const request = {
-        //targets : --- letting this default to the peers assigned to the channel
+    var request = {
         chaincodeId: 'deliboard',
-        fcn: 'buildRequest',
-        args: [key, timestamp, sender_name, sender_address, receive_name, receive_address, deliverer_name, price, status, code],
+        fcn: 'updateFinish',
+        args: [key, code],
         chainId: 'mychannel',
         txId: tx_id
     };
@@ -106,23 +75,15 @@ Fabric_Client.newDefaultKeyValueStore({ path: store_path
             proposal: proposal
         };
 
-        // set the transaction listener and set a timeout of 30 sec
-        // if the transaction did not get committed within the timeout period,
-        // report a TIMEOUT status
         var transaction_id_string = tx_id.getTransactionID(); //Get the transaction ID string to be used by the event processing
         var promises = [];
 
         var sendPromise = channel.sendTransaction(request);
         promises.push(sendPromise); //we want the send transaction first, so that we know where to check status
 
-        // get an eventhub once the fabric client has a user assigned. The user
-        // is required bacause the event registration must be signed
         let event_hub = fabric_client.newEventHub();
         event_hub.setPeerAddr('grpc://localhost:7053');
 
-        // using resolve the promise so that result status may be processed
-        // under the then clause rather than having the catch clause process
-        // the status
         let txPromise = new Promise((resolve, reject) => {
             let handle = setTimeout(() => {
                 event_hub.disconnect();
@@ -130,13 +91,10 @@ Fabric_Client.newDefaultKeyValueStore({ path: store_path
             }, 3000);
             event_hub.connect();
             event_hub.registerTxEvent(transaction_id_string, (tx, code) => {
-                // this is the callback for transaction event status
-                // first some clean up of event listener
                 clearTimeout(handle);
                 event_hub.unregisterTxEvent(transaction_id_string);
                 event_hub.disconnect();
 
-                // now let the application know what happened
                 var return_status = {event_status : code, tx_id : transaction_id_string};
                 if (code !== 'VALID') {
                     console.error('The transaction was invalid, code = ' + code);
@@ -146,7 +104,6 @@ Fabric_Client.newDefaultKeyValueStore({ path: store_path
                     resolve(return_status);
                 }
             }, (err) => {
-                //this is the callback if something goes wrong with the event registration or processing
                 reject(new Error('There was a problem with the eventhub ::'+err));
             });
         });
@@ -159,22 +116,18 @@ Fabric_Client.newDefaultKeyValueStore({ path: store_path
     }
 }).then((results) => {
     console.log('Send transaction promise and event listener promise have completed');
-    // check the results in the order the promises were added to the promise all list
     if (results && results[0] && results[0].status === 'SUCCESS') {
         console.log('Successfully sent transaction to the orderer.');
-        res.send(tx_id.getTransactionID());
+        res.json(tx_id.getTransactionID())
     } else {
         console.error('Failed to order the transaction. Error code: ' + response.status);
     }
-
     if(results && results[1] && results[1].event_status === 'VALID') {
         console.log('Successfully committed the change to the ledger by the peer');
-        res.send(tx_id.getTransactionID());
+        res.json(tx_id.getTransactionID())
     } else {
         console.log('Transaction failed to be committed to the ledger due to ::'+results[1].event_status);
     }
-    location.reload();
 }).catch((err) => {
     console.error('Failed to invoke successfully :: ' + err);
-    location.reload();
 });
